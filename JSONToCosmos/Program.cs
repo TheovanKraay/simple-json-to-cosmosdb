@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace JSONToCosmos
 {
@@ -32,9 +33,10 @@ namespace JSONToCosmos
                 cosmosClient = new CosmosClient(EndpointUri, PrimaryKey);
                 database = await this.cosmosClient.CreateDatabaseIfNotExistsAsync(databaseId);
                 container = await this.database.CreateContainerIfNotExistsAsync(containerId, "/pk");
-                var json = "{\"id\": \"1\",\"pk\": \"pk1\",\"Name\": \"theo\"}";
-                var doc = JsonConvert.DeserializeObject<Object>(json);
-                await this.container.CreateItemAsync<Object>(doc, new PartitionKey("pk1"));
+                var json = "{\"id\": \"2\",\"pk\": \"pk1\",\"Name\": \"theo\"}";
+                var doc = JsonConvert.DeserializeObject<JObject>(json);
+                //JObject doc = JObject.Parse(json);
+                await this.container.CreateItemAsync<JObject>(doc, new PartitionKey(doc.GetValue("pk").ToString()));
             }
             catch (Exception e)
             {
